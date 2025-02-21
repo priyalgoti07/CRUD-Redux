@@ -9,7 +9,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "preact": "^10.25.4"
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^6.4.5",
+    "@mui/material": "^6.4.5",
+    "@reduxjs/toolkit": "^2.5.1",
+    "preact": "^10.25.4",
+    "react-redux": "^9.2.0"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.1",

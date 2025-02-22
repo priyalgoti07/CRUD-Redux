@@ -89,7 +89,7 @@ export function App() {
           </Button>
         </DialogActions>
       </Dialog>
-      <AddtaskList onEdit={handleEdit} />
+      <AddtaskList onEdit={handleEdit} filterText={filterText}/>
     </Container>
   )
 }

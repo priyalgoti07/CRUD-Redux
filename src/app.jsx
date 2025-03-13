@@ -3,6 +3,12 @@ import { Button, Container, Dialog, DialogActions, DialogContent, DialogContentT
 import { useDispatch } from 'react-redux';
 import { addTask, updateTask } from './redux/slices/taskSlice';
 import AddtaskList from './components/AddtaskList';
+import { z } from "zod";
+
+export const taskSchema = z.object({
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+});
 
 export function App() {
   const [openPopup, setOpenPopup] = useState(false)
@@ -10,9 +16,28 @@ export function App() {
   const [description, setDescription] = useState("");
   const [editingTask, setEditingTask] = useState(null); // Track the task being edited
   const [filterText, setFilterText] = useState(""); // Filter text state
+  const [errors, setErrors] = useState({ title: "", description: "" }); // State for validation errors
   const dispatch = useDispatch();
 
+  const validateForm = () => {
+    try {
+      taskSchema.parse({ title, description });
+      setErrors({ title: "", description: "" }); // Clear previous errors
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors = error.formErrors.fieldErrors;
+        setErrors({
+          title: fieldErrors.title ? fieldErrors.title[0] : "",
+          description: fieldErrors.description ? fieldErrors.description[0] : "",
+        });
+      }
+      return false;
+    }
+  };
+
   const handleSave = () => {
+    if (!validateForm()) return; // Prevent saving if validation fails
     if (editingTask) {
       // If editing, update task
       dispatch(updateTask({ id: editingTask.id, title, description }));
@@ -25,6 +50,14 @@ export function App() {
     setEditingTask(null);
     setOpenPopup(false);
 
+  };
+
+  const handleChange = (field) => (e) => {
+    const { value } = e.target;
+    if (field === "title") setTitle(value);
+    if (field === "description") setDescription(value);
+
+    validateField(field, value); // Validate as user types
   };
 
   const handleEdit = (task) => {
@@ -64,7 +97,9 @@ export function App() {
             variant="outlined"
             margin="dense"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={handleChange("title")}
+            error={!!errors.title}
+            helperText={errors.title}
           />
 
           {/* Description Input Field */}
@@ -76,7 +111,9 @@ export function App() {
             multiline
             rows={3}
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={handleChange("description")}
+            error={!!errors.description}
+            helperText={errors.description}
           />
         </DialogContent>
 
@@ -89,7 +126,7 @@ export function App() {
           </Button>
         </DialogActions>
       </Dialog>
-      <AddtaskList onEdit={handleEdit} filterText={filterText}/>
+      <AddtaskList onEdit={handleEdit} filterText={filterText} />
     </Container>
   )
 }

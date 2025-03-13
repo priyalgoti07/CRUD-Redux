@@ -8,15 +8,17 @@ import { PersistGate } from "redux-persist/integration/react";
 import Dropdown from "./Dropdown.js";
 import SmallCrud from "./SmallCrud.js";
 import { CheckBox } from "./CheckBox.js";
+import Apptodo from "./Apptodo.jsx";
 
 render(
     <React.Fragment>
         <Provider store={store}>
             <PersistGate persistor={persistor}>
-                <App />
+                {/* <App /> */}
                 {/* <Dropdown/> */}
                 {/* <SmallCrud/> */}
                 {/* <CheckBox/> */}
+                <Apptodo/>
             </PersistGate>
         </Provider>
     </React.Fragment >

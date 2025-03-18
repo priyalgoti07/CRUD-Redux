@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { addtodo } from './redux/slices/appSlice';
 import { Controller, useForm } from 'react-hook-form';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Box, Button, Checkbox, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, FormControlLabel, FormLabel, MenuItem, Radio, RadioGroup, Stack, TextField } from '@mui/material';
+import { ApptodoTable } from './ApptodoTable';
 
 const Apptodo = () => {
     const dispatch = useDispatch();
-    const apptodoList = useSelector((state) => state.apptodo.apptodo);
-    console.log("app",apptodoList)
-    const { register, handleSubmit, control, getValues, setValue, watch, formState: { errors }, clearErrors } = useForm({
+    const [dataFromChild, setDataFromChild] = useState("");
+    const { register, handleSubmit, control, getValues, setValue, watch, formState: { errors }, clearErrors, reset } = useForm({
         mode: "onChange",// Enables real-time validation
         defaultValues: {
             name: '',
@@ -41,6 +41,7 @@ const Apptodo = () => {
 
     const onSubmit = (data) => {
         dispatch(addtodo(data))
+        reset()
     };
 
     const selectedCountry = watch("countries");  // ✅ Watches country selection in real-time
@@ -66,10 +67,19 @@ const Apptodo = () => {
         }
     }, [selectedCountry, clearErrors]);
 
+    const handleEditList = (data) => {
+        console.log(data)
+        reset(data);
+        setValue("subjects", data.subjects || []);
+    }
+    console.log("updatedData", getValues())
     return (
-        <Container sx={{ textAlign: "center", mt: 5 }}>
-            <Box sx={{ textAlign: "center" }}>
-                <Button variant="outlined" color="primary" onClick={() => setOpenPopup(true)}>
+        <Container sx={{ textAlign: "center", mt: 5, backgroundColor:"red" }} >
+            <Box sx={{ textAlign: "right" }}>
+                <Button
+                    c variant="outlined"
+                    color="primary"
+                    onClick={() => setOpenPopup(true)}>
                     Add TODO
                 </Button>
                 <Dialog open={openPopup} onClose={() => setOpenPopup(false)} aria-labelledby="dialog-title">
@@ -131,14 +141,38 @@ const Apptodo = () => {
                                     </FormControl>
 
                                     {/* Subject Selection (Checkboxes) */}
+                                    {/* Subjects Selection */}
                                     <FormControl>
-                                        <FormLabel sx={{ textAlign: "left" }}>Subjects</FormLabel>
+                                        <FormLabel>Subjects</FormLabel>
                                         <Stack direction="row">
-                                            <FormControlLabel control={<Checkbox {...register("subjects", { required: "Select at least one subject" })} value="english" />} label="English" />
-                                            <FormControlLabel control={<Checkbox {...register("subjects")} value="hindi" />} label="Hindi" />
-                                            <FormControlLabel control={<Checkbox {...register("subjects")} value="gujarati" />} label="Gujarati" />
+                                            <Controller
+                                                name="subjects"
+                                                control={control}
+                                                rules={{ validate: value => value.length > 0 || "Select at least one subject" }}
+                                                render={({ field }) => (
+                                                    <>
+                                                        {["english", "hindi", "gujarati"].map(subject => (
+                                                            <FormControlLabel
+                                                                key={subject}
+                                                                control={
+                                                                    <Checkbox
+                                                                        checked={field.value.includes(subject)}
+                                                                        onChange={(e) => {
+                                                                            const newValue = e.target.checked
+                                                                                ? [...field.value, subject]
+                                                                                : field.value.filter(s => s !== subject);
+                                                                            field.onChange(newValue);
+                                                                        }}
+                                                                    />
+                                                                }
+                                                                label={subject.charAt(0).toUpperCase() + subject.slice(1)}
+                                                            />
+                                                        ))}
+                                                    </>
+                                                )}
+                                            />
                                         </Stack>
-                                        {errors.subjects && (<Box sx={{ color: '#d32f2f', fontSize: '12px', fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif', textAlign: 'left' }}>{errors.subjects.message}</Box>)}
+                                        {errors.subjects && <Box sx={{ color: '#d32f2f', fontSize: '12px' }}>{errors.subjects.message}</Box>}
                                     </FormControl>
                                     {/* Country Selection */}
                                     <TextField
@@ -187,6 +221,7 @@ const Apptodo = () => {
                     </DialogContent>
                 </Dialog>
             </Box>
+            <ApptodoTable onEdit={() => setOpenPopup(true)} sendDataToParent={handleEditList} />
         </Container>
 
     );

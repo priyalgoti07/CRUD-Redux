@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { addtodo } from './redux/slices/appSlice';
 import { Controller, useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
@@ -7,7 +7,6 @@ import { ApptodoTable } from './ApptodoTable';
 
 const Apptodo = () => {
     const dispatch = useDispatch();
-    const [dataFromChild, setDataFromChild] = useState("");
     const { register, handleSubmit, control, getValues, setValue, watch, formState: { errors }, clearErrors, reset } = useForm({
         mode: "onChange",// Enables real-time validation
         defaultValues: {
@@ -40,8 +39,17 @@ const Apptodo = () => {
     ];
 
     const onSubmit = (data) => {
+        console.log(getValues())
         dispatch(addtodo(data))
-        reset()
+        reset({
+            name: '',
+            email: '',
+            contact: '',
+            gender: '',
+            countries: '',
+            city: '',
+            subjects: [],
+        });
     };
 
     const selectedCountry = watch("countries");  // ✅ Watches country selection in real-time
@@ -68,18 +76,30 @@ const Apptodo = () => {
     }, [selectedCountry, clearErrors]);
 
     const handleEditList = (data) => {
-        console.log(data)
         reset(data);
+        console.log("i am edit")
         setValue("subjects", data.subjects || []);
     }
-    console.log("updatedData", getValues())
+
+    const handleaddTodo = () => {
+        reset({
+            name: '',
+            email: '',
+            contact: '',
+            gender: '',
+            countries: '',
+            city: '',
+            subjects: [],
+        });
+        setOpenPopup(true)
+    }
     return (
-        <Container sx={{ textAlign: "center", mt: 5, backgroundColor:"red" }} >
+        <Container sx={{ textAlign: "center", mt: 5 }} >
             <Box sx={{ textAlign: "right" }}>
                 <Button
                     c variant="outlined"
                     color="primary"
-                    onClick={() => setOpenPopup(true)}>
+                    onClick={() => handleaddTodo()}>
                     Add TODO
                 </Button>
                 <Dialog open={openPopup} onClose={() => setOpenPopup(false)} aria-labelledby="dialog-title">
@@ -177,6 +197,7 @@ const Apptodo = () => {
                                     {/* Country Selection */}
                                     <TextField
                                         select fullWidth label="Country"
+                                        defaultValue={getValues('countries')}
                                         {...register('countries', { required: "Country is required" })}
                                         error={!!errors.countries}
                                         helperText={errors.countries?.message}
@@ -195,6 +216,7 @@ const Apptodo = () => {
                                     {/* City Selection - updates dynamically based on country */}
                                     <TextField
                                         select fullWidth label="City"
+                                        defaultValue={getValues('city')}
                                         {...register('city', { required: "City is required" })}
                                         error={!!errors.city}
                                         helperText={errors.city?.message}

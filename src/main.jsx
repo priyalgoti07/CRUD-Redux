@@ -9,6 +9,7 @@ import Dropdown from "./Dropdown.js";
 import SmallCrud from "./SmallCrud.js";
 import { CheckBox } from "./CheckBox.js";
 import Apptodo from "./Apptodo.jsx";
+import Apicall from "./Apicall.js";
 
 render(
     <React.Fragment>
@@ -18,7 +19,8 @@ render(
                 {/* <Dropdown/> */}
                 {/* <SmallCrud/> */}
                 {/* <CheckBox/> */}
-                <Apptodo/>
+                {/* <Apptodo/> */}
+                <Apicall />
             </PersistGate>
         </Provider>
     </React.Fragment >

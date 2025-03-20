@@ -81,7 +81,10 @@ export function App() {
         value={filterText}
         onChange={(e) => setFilterText(e.target.value)}
       />
-      <Button variant="outlined" color="primary" onClick={() => setOpenPopup(true)}>
+      <Button variant="outlined" color="primary" onClick={() => {
+        setTitle('')
+        setDescription('')
+        setOpenPopup(true)}}>
         Add Task
       </Button>
       {/* Dialog Box */}
